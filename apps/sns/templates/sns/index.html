@@ -1,0 +1,26 @@
+{% extends "sns/base.html" %}
+{% block content %}
+
+<!-- 投稿一覧 -->
+<div class="post-list">
+    {% for post in posts %}
+    <div class="post">
+        <!-- 投稿タイトルと内容 -->
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.content }}</p>
+        <small>投稿日時: {{ post.timestamp }}</small>
+
+        <!-- 投稿に紐づく画像を表示 -->
+        <div class="images">
+            {% for image in post.images %}
+            <img src="{{ url_for('detector.image_file', filename=image.post_image_path) }}" 
+                 alt="投稿画像" 
+                 style="max-width: 300px; max-height: 300px;" />
+            {% endfor %}
+        </div>
+    </div>
+    <hr />
+    {% endfor %}
+</div>
+
+{% endblock %}

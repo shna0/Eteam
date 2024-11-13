@@ -1,6 +1,8 @@
-from flask_wtf.file import FileAllowed, FileField, FileRequired
+from flask_wtf.file import FileAllowed, FileRequired
 from flask_wtf.form import FlaskForm
-from wtforms.fields.simple import SubmitField
+from wtforms import FileField, SubmitField, SelectField
+from wtforms.validators import DataRequired
+
 
 
 class UploadImageForm(FlaskForm):
@@ -11,6 +13,7 @@ class UploadImageForm(FlaskForm):
             FileAllowed(["png", "jpg", "jpeg"], "サポートされていない画像形式です。"),
         ]
     )
+    post_id = SelectField("投稿", coerce=int, validators=[DataRequired()])
     submit = SubmitField("アップロード")
 
 
