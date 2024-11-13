@@ -3,8 +3,8 @@ from pathlib import Path
 from flask import Blueprint, render_template, current_app, send_from_directory, redirect, url_for, flash, request
 from apps.app import db
 from apps.crud.models import User
-from apps.detector.models import UserImage
-from apps.detector.forms import UploadImageForm, DeleteForm
+from apps.sns.models import UserImage
+from apps.sns.forms import UploadImageForm, DeleteForm
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 
