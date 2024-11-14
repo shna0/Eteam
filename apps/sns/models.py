@@ -8,8 +8,8 @@ class Post(db.Model):
     title = db.Column(db.String)
     content = db.Column(db.String)
     timestamp = db.Column(db.DateTime, default=datetime.now)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
-
+    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False)
+    user = db.relationship("User", back_populates="posts")
     images = db.relationship("Image", backref="post", lazy="dynamic")
 
 class Image(db.Model):

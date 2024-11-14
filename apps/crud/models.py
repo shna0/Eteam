@@ -11,6 +11,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True, index=True)
     password_hash = db.Column(db.String)
 
+    posts = db.relationship("Post", back_populates="user")
+
     @property
     def password(self):
         raise AttributeError("読み取り不可")

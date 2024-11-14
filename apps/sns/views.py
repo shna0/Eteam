@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, current_app, send_from_directory, 
 from apps.app import db
 from apps.crud.models import User
 from apps.sns.models import Image,Post,Follow,Comment
-from apps.sns.forms import UploadImageForm, DeleteForm
+from apps.sns.forms import UploadImageForm, DeleteForm, PostForm
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -14,18 +14,32 @@ dt = Blueprint("sns", __name__, template_folder="templates")
 # dtアプリケーションを使ってエンドポイントを作成する
 @dt.route("/")
 def index():
-    # PostとImageを取得してテンプレートに渡す
-    posts = db.session.query(Post).all()
-
-    return render_template(
-        "sns/index.html",
-        posts=posts,  # 投稿データを渡す
-    )
+    # 投稿一覧を取得（投稿者情報も取得）
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template("sns/index.html", posts=posts)
 
 
 @dt.route("/images/<path:filename>")
 def image_file(filename):
     return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename)
+
+@dt.route("/post", methods=["GET", "POST"])
+@login_required
+def post():
+    form = PostForm()
+    if form.validate_on_submit():
+        # 投稿内容を保存
+        new_post = Post(
+            title=form.title.data,
+            content=form.content.data,
+            user_id=current_user.user_id,  # 現在ログイン中のユーザー
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        flash("投稿が完了しました！", "success")
+        return redirect(url_for("sns.index"))
+
+    return render_template("sns/post.html", form=form)
 
 @dt.route("/upload", methods=["GET", "POST"])
 @login_required

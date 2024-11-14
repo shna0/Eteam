@@ -1,25 +1,25 @@
 {% extends "sns/base.html" %}
 {% block content %}
 
-<!-- 投稿一覧 -->
-<div class="post-list">
-    {% for post in posts %}
-    <div class="post">
-        <!-- 投稿タイトルと内容 -->
-        <h3>{{ post.title }}</h3>
-        <p>{{ post.content }}</p>
-        <small>投稿日時: {{ post.timestamp }}</small>
+<div class="col-md-10 text-right">
+    <a href="{{ url_for('sns.post') }}" class="btn btn-success">新規投稿</a>
+</div>
 
-        <!-- 投稿に紐づく画像を表示 -->
-        <div class="images">
-            {% for image in post.images %}
-            <img src="{{ url_for('detector.image_file', filename=image.post_image_path) }}" 
-                 alt="投稿画像" 
-                 style="max-width: 300px; max-height: 300px;" />
-            {% endfor %}
+<!-- 投稿一覧 -->
+<div class="row">
+    {% for post in posts %}
+    <div class="card col-md-8 mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text">{{ post.content }}</p>
+            <p class="card-text">
+                <small class="text-muted">
+                    投稿者: {{ post.user.username }} |
+                    投稿日: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                </small>
+            </p>
         </div>
     </div>
-    <hr />
     {% endfor %}
 </div>
 
