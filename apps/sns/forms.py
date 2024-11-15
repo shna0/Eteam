@@ -4,24 +4,13 @@ from wtforms import FileField, SubmitField, SelectField
 from wtforms.validators import DataRequired
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField
+from wtforms import StringField, TextAreaField, SubmitField,MultipleFileField
 from wtforms.validators import DataRequired, Length
 
 class PostForm(FlaskForm):
-    title = StringField(
-        "タイトル",
-        validators=[
-            DataRequired(message="タイトルは必須です"),
-            Length(max=100, message="タイトルは100文字以内で入力してください"),
-        ],
-    )
-    content = TextAreaField(
-        "内容",
-        validators=[
-            DataRequired(message="内容は必須です"),
-            Length(max=500, message="内容は500文字以内で入力してください"),
-        ],
-    )
+    title = StringField("タイトル", validators=[DataRequired()])
+    content = TextAreaField("内容", validators=[DataRequired()])
+    images = MultipleFileField("画像", validators=[FileAllowed(['jpg', 'png', 'gif'], "画像ファイルのみアップロード可能です")])
     submit = SubmitField("投稿")
 
 

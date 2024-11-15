@@ -27,44 +27,36 @@ def image_file(filename):
 @login_required
 def post():
     form = PostForm()
+    
     if form.validate_on_submit():
-        # 投稿内容を保存
-        new_post = Post(
+        # 投稿を作成
+        post = Post(
             title=form.title.data,
             content=form.content.data,
-            user_id=current_user.user_id,  # 現在ログイン中のユーザー
+            user_id=current_user.user_id,
         )
-        db.session.add(new_post)
+        db.session.add(post)
         db.session.commit()
-        flash("投稿が完了しました！", "success")
-        return redirect(url_for("sns.index"))
 
+        # アップロードされた画像を保存
+        if form.images.data:
+            for file in form.images.data:
+                ext = Path(file.filename).suffix
+                unique_filename = str(uuid.uuid4()) + ext
+                upload_path = Path(current_app.config["UPLOAD_FOLDER"], unique_filename)
+                file.save(upload_path)
+
+                # 画像をImageインスタンスとして保存
+                image = Image(post_image_path=unique_filename, post_id=post.post_id)
+                db.session.add(image)
+        
+        db.session.commit()
+        flash("投稿が完了しました")
+        return redirect(url_for("sns.index"))  # 投稿リストにリダイレクト
+
+    # GETメソッドまたはフォームのバリデーション失敗時にフォームを再表示
     return render_template("sns/post.html", form=form)
 
-@dt.route("/upload", methods=["GET", "POST"])
-@login_required
-def upload_image():
-    form = UploadImageForm()
-    # フォームの投稿選択肢に投稿データを渡す
-    form.post_id.choices = [(post.post_id, post.title) for post in Post.query.all()]
-
-    if form.validate_on_submit():
-        file = form.image.data
-        ext = Path(file.filename).suffix
-        image_uuid_file_name = str(uuid.uuid4()) + ext
-
-        image_path = Path(current_app.config["UPLOAD_FOLDER"], image_uuid_file_name)
-        file.save(image_path)
-
-        # 投稿に関連付けて画像を保存
-        user_image = Image(
-            post_id=form.post_id.data, post_image_path=image_uuid_file_name
-        )
-        db.session.add(user_image)
-        db.session.commit()
-
-        return redirect(url_for("detector.index"))
-    return render_template("detector/upload.html", form=form)
 
 @dt.route("/search", methods=["GET"])
 def search():
