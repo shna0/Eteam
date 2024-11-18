@@ -1,0 +1,34 @@
+{% extends "sns/base.html" %}
+{% block content %}
+<div class="container">
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content }}</p>
+    {% for image in post.images %}
+    <img src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="max-width: 100%; height: auto;" />
+    {% endfor %}
+    <small>投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp }}</small>
+    
+    <hr />
+    
+    <h3>コメント</h3>
+    {% for comment in comments %}
+    <div class="comment">
+        <p><strong>{{ comment.user.username }}</strong> 投稿日時: {{ comment.timestamp }}</p>
+        <p>{{ comment.content }}</p>
+    </div>
+    <hr />
+    {% endfor %}
+
+    <h4>コメントを追加</h4>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content(class="form-control") }}
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">コメントを投稿</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

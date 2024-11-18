@@ -35,4 +35,5 @@ class Comment(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
     post_id = db.Column(db.Integer, db.ForeignKey("post.post_id"))
+    user = db.relationship('User', backref='comments')
 

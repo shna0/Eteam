@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, current_app, send_from_directory, 
 from apps.app import db
 from apps.crud.models import User
 from apps.sns.models import Image,Post,Follow,Comment
-from apps.sns.forms import UploadImageForm, DeleteForm, PostForm
+from apps.sns.forms import UploadImageForm, DeleteForm, PostForm, CommentForm
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -76,4 +76,17 @@ def delete_image(image_id):
         current_app.logger.error(e)
         db.session.rollback()
 
-   
+@dt.route("/post/<int:post_id>", methods=["GET", "POST"])
+def post_detail(post_id):
+    post = Post.query.get_or_404(post_id)
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    form = CommentForm()
+
+    if form.validate_on_submit():
+        comment = Comment(content=form.content.data, post_id=post_id, user_id=current_user.user_id)
+        db.session.add(comment)
+        db.session.commit()
+        flash("コメントを追加しました！")
+        return redirect(url_for('sns.post_detail', post_id=post_id))
+
+    return render_template("sns/post_detail.html", post=post, comments=comments, form=form)

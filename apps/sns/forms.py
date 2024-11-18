@@ -1,10 +1,8 @@
 from flask_wtf.file import FileAllowed, FileRequired
 from flask_wtf.form import FlaskForm
-from wtforms import FileField, SubmitField, SelectField
-from wtforms.validators import DataRequired
+from wtforms import FileField, SubmitField, SelectField, StringField, TextAreaField, MultipleFileField
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField,MultipleFileField
 from wtforms.validators import DataRequired, Length
 
 class PostForm(FlaskForm):
@@ -32,3 +30,7 @@ class DetectorForm(FlaskForm):
 
 class DeleteForm(FlaskForm):
     submit = SubmitField("削除")
+
+class CommentForm(FlaskForm):
+    content = TextAreaField("コメント", validators=[DataRequired()])
+    submit = SubmitField("送信")
