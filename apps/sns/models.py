@@ -24,8 +24,8 @@ class Image(db.Model):
 
 class Follow(db.Model):
     __tablename__ = "follow"
-    user_id = db.Column(db.String, db.ForeignKey("user.user_id"), primary_key=True)
-    follow_user_id = db.Column(db.String, db.ForeignKey("user.user_id"), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"), primary_key=True)
+    follow_user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"), primary_key=True)
     follow_date = db.Column(db.DateTime, default=datetime.now)
 
 class Comment(db.Model):
@@ -33,6 +33,6 @@ class Comment(db.Model):
     comment_id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String)
     timestamp = db.Column(db.DateTime, default=datetime.now)
-    user_id = db.Column(db.String, db.ForeignKey("user.user_id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
     post_id = db.Column(db.Integer, db.ForeignKey("post.post_id"))
 
