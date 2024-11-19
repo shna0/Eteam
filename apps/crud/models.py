@@ -9,6 +9,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String, index=True)
     email = db.Column(db.String, unique=True, index=True)
     password_hash = db.Column(db.String)
+    icon_path = db.Column(db.String, default="default_icon.png")
 
     posts = db.relationship("Post", back_populates="user")
 

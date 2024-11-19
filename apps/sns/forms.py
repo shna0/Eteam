@@ -13,15 +13,15 @@ class PostForm(FlaskForm):
 
 
 class UploadImageForm(FlaskForm):
-    # ファイルフィールドに必要なバリデーションを設定する
     image = FileField(
+        "画像ファイル",
         validators=[
             FileRequired("画像ファイルを指定してください。"),
             FileAllowed(["png", "jpg", "jpeg"], "サポートされていない画像形式です。"),
-        ]
+        ],
     )
-    post_id = SelectField("投稿", coerce=int, validators=[DataRequired()])
     submit = SubmitField("アップロード")
+
 
 class SearchForm(FlaskForm):
     keyword = StringField('検索キーワード', validators=[DataRequired(message="キーワードを入力してください。")])
@@ -34,3 +34,5 @@ class DeleteForm(FlaskForm):
 class CommentForm(FlaskForm):
     content = TextAreaField("コメント", validators=[DataRequired()])
     submit = SubmitField("送信")
+
+

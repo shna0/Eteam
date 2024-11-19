@@ -126,3 +126,32 @@ def mypage():
     
     return render_template("sns/mypage.html", user=current_user, posts=user_posts, comments=user_comments)
 
+@dt.route("/user/<int:user_id>", methods=["GET"])
+def user_page(user_id):
+    # 指定されたユーザーの情報を取得
+    user = User.query.get_or_404(user_id)
+    user_posts = Post.query.filter_by(user_id=user_id).order_by(Post.timestamp.desc()).all()
+    user_comments = Comment.query.filter_by(user_id=user_id).order_by(Comment.timestamp.desc()).all()
+
+    return render_template("sns/user_page.html", user=user, posts=user_posts, comments=user_comments)
+
+@dt.route("/user/<int:user_id>/edit_icon", methods=["GET", "POST"])
+@login_required
+def edit_icon(user_id):
+    user = User.query.get_or_404(user_id)
+
+    form = UploadImageForm()
+
+    if form.validate_on_submit():
+        file = form.image.data
+        ext = Path(file.filename).suffix
+        unique_filename = f"user_{user_id}{ext}"
+        upload_path = Path(current_app.config["UPLOAD_FOLDER"], unique_filename)
+        file.save(upload_path)
+
+        user.icon_path = unique_filename
+        db.session.commit()
+        flash("アイコンを更新しました")
+        return redirect(url_for('sns.user_page', user_id=user_id))
+
+    return render_template("sns/edit_icon.html", form=form, user=user)

@@ -5,11 +5,7 @@
     {{ user.username }}のページ
 </h1>
 
-{% if user == current_user %}
-<a href="{{ url_for('sns.edit_icon', user_id=user.user_id) }}" class="btn btn-primary">アイコンを変更</a>
-{% endif %}
-
-<h2>投稿履歴</h2>
+<h2>投稿一覧</h2>
 <div class="posts">
     {% if posts %}
         {% for post in posts %}
@@ -21,11 +17,11 @@
         <hr />
         {% endfor %}
     {% else %}
-        <p>投稿がありません。</p>
+        <p>このユーザーの投稿はありません。</p>
     {% endif %}
 </div>
 
-<h2>コメント履歴</h2>
+<h2>コメント一覧</h2>
 <div class="comments">
     {% if comments %}
         {% for comment in comments %}
@@ -36,7 +32,7 @@
         <hr />
         {% endfor %}
     {% else %}
-        <p>コメントがありません。</p>
+        <p>このユーザーのコメントはありません。</p>
     {% endif %}
 </div>
 {% endblock %}

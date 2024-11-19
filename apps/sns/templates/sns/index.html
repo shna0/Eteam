@@ -11,9 +11,15 @@
     <div class="post">
         <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
         {% for image in post.images %}
-            <img src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="max-width: 100%; height: auto;" />
+            <img src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="width: 300px; height: auto; object-fit: cover; display: block; margin: 0 auto;" />
         {% endfor %}
-        <small>投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp }}</small>
+        <small>
+            <a href="{{ url_for('sns.user_page', user_id=post.user_id) }}">
+            <img src="{{ url_for('sns.image_file', filename=post.user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
+        </a>
+            投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp }}
+        </small>
+             
     </div>
     <hr />
 {% endfor %}
