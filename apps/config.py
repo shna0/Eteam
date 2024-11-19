@@ -13,14 +13,14 @@ class BaseConfig:
 
 # BaseConfigクラスを継承してLocalConfigクラスを作成する
 class LocalConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = f"postgresql://postgres:shuma0605@localhost/flask_sns"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://postgres:oohara2024e@localhost/flask_sns"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
 
 
 # BaseConfigクラスを継承してTestingConfigクラスを作成する
 class TestingConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = f"postgresql://postgres:shuma0605@localhost/flask_sns"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://postgres:oohara2024e@localhost/flask_sns"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = False
 

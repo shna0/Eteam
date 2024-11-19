@@ -23,9 +23,9 @@ class UploadImageForm(FlaskForm):
     post_id = SelectField("投稿", coerce=int, validators=[DataRequired()])
     submit = SubmitField("アップロード")
 
-
-class DetectorForm(FlaskForm):
-    submit = SubmitField("検知")
+class SearchForm(FlaskForm):
+    keyword = StringField('検索キーワード', validators=[DataRequired(message="キーワードを入力してください。")])
+    submit = SubmitField("検索")
 
 
 class DeleteForm(FlaskForm):
