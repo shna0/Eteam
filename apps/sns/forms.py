@@ -13,6 +13,11 @@ class PostForm(FlaskForm):
 
 
 class UploadImageForm(FlaskForm):
+    username = StringField(
+        "ユーザー名", 
+        validators=[DataRequired(), Length(max=50, message="ユーザー名は50文字以内で入力してください。")]
+    )
+
     image = FileField(
         "画像ファイル",
         validators=[
@@ -20,7 +25,7 @@ class UploadImageForm(FlaskForm):
             FileAllowed(["png", "jpg", "jpeg"], "サポートされていない画像形式です。"),
         ],
     )
-    submit = SubmitField("アップロード")
+    submit = SubmitField("更新")
 
 
 class SearchForm(FlaskForm):
@@ -36,3 +41,5 @@ class CommentForm(FlaskForm):
     submit = SubmitField("送信")
 
 
+class FollowForm(FlaskForm):
+    pass

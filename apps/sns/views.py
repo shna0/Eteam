@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, current_app, send_from_directory, 
 from apps.app import db
 from apps.crud.models import User
 from apps.sns.models import Image,Post,Follow,Comment
-from apps.sns.forms import UploadImageForm, DeleteForm, PostForm, CommentForm, SearchForm
+from apps.sns.forms import UploadImageForm, DeleteForm, PostForm, CommentForm, SearchForm, FollowForm
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -36,7 +36,7 @@ def post():
         post = Post(
             title=form.title.data,
             content=form.content.data,
-            user_id=current_user.user_id,
+            user_id=current_user.id,
         )
         db.session.add(post)
         db.session.commit()
@@ -62,6 +62,7 @@ def post():
 
 
 @dt.route("/search", methods=["GET", "POST"])
+@login_required
 def search():
     form = SearchForm()
     posts = []
@@ -103,13 +104,15 @@ def delete_image(image_id):
         db.session.rollback()
 
 @dt.route("/post/<int:post_id>", methods=["GET", "POST"])
+@login_required
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)
     comments = Comment.query.filter_by(post_id=post_id).all()
     form = CommentForm()
 
+
     if form.validate_on_submit():
-        comment = Comment(content=form.content.data, post_id=post_id, user_id=current_user.user_id)
+        comment = Comment(content=form.content.data, post_id=post_id, user_id=current_user.id)
         db.session.add(comment)
         db.session.commit()
         flash("コメントを追加しました！")
@@ -121,37 +124,91 @@ def post_detail(post_id):
 @login_required
 def mypage():
     # ログインしているユーザーの投稿とコメントを取得
-    user_posts = Post.query.filter_by(user_id=current_user.user_id).order_by(Post.timestamp.desc()).all()
-    user_comments = Comment.query.filter_by(user_id=current_user.user_id).order_by(Comment.timestamp.desc()).all()
+    user_posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.timestamp.desc()).all()
+    user_comments = Comment.query.filter_by(user_id=current_user.id).order_by(Comment.timestamp.desc()).all()
     
     return render_template("sns/mypage.html", user=current_user, posts=user_posts, comments=user_comments)
 
 @dt.route("/user/<int:user_id>", methods=["GET"])
+@login_required
 def user_page(user_id):
     # 指定されたユーザーの情報を取得
     user = User.query.get_or_404(user_id)
     user_posts = Post.query.filter_by(user_id=user_id).order_by(Post.timestamp.desc()).all()
     user_comments = Comment.query.filter_by(user_id=user_id).order_by(Comment.timestamp.desc()).all()
-
-    return render_template("sns/user_page.html", user=user, posts=user_posts, comments=user_comments)
+    form = FollowForm()
+    return render_template("sns/user_page.html", user=user, posts=user_posts, comments=user_comments, form=form)
 
 @dt.route("/user/<int:user_id>/edit_icon", methods=["GET", "POST"])
 @login_required
 def edit_icon(user_id):
     user = User.query.get_or_404(user_id)
 
+    # ユーザーがログイン中であり、自身の情報のみ編集可能とする
+    if user != current_user:
+        flash("他のユーザーの情報を編集することはできません。")
+        return redirect(url_for("sns.user_page", user_id=user_id))
+
     form = UploadImageForm()
 
     if form.validate_on_submit():
-        file = form.image.data
-        ext = Path(file.filename).suffix
-        unique_filename = f"user_{user_id}{ext}"
-        upload_path = Path(current_app.config["UPLOAD_FOLDER"], unique_filename)
-        file.save(upload_path)
+        # ユーザー名の更新
+        new_username = form.username.data.strip()
+        if new_username and len(new_username) <= 50:
+            user.username = new_username
+        else:
+            flash("ユーザー名が無効です。")
+            return redirect(url_for("sns.edit_icon", user_id=user_id))
 
-        user.icon_path = unique_filename
+        # 画像ファイルの処理
+        if form.image.data:
+            file = form.image.data
+            ext = Path(file.filename).suffix
+            unique_filename = f"user_{user_id}{ext}"
+            upload_path = Path(current_app.config["UPLOAD_FOLDER"], unique_filename)
+            file.save(upload_path)
+
+            # ユーザーのアイコンを更新
+            user.icon_path = unique_filename
+
         db.session.commit()
-        flash("アイコンを更新しました")
-        return redirect(url_for('sns.user_page', user_id=user_id))
+        flash("アイコンとユーザー名を更新しました")
+        return redirect(url_for("sns.user_page", user_id=user_id))
 
+    # 初期データとして現在のユーザー名をフォームにセット
+    form.username.data = user.username
     return render_template("sns/edit_icon.html", form=form, user=user)
+
+@dt.route('/user/<int:user_id>/toggle_follow', methods=['POST'])
+@login_required
+def toggle_follow(user_id):
+    current_user_id = current_user.id
+    follow = Follow.query.filter_by(user_id=current_user_id, follow_user_id=user_id).first()
+
+    if not follow:
+        # フォローが存在しない場合、新しく追加
+        new_follow = Follow(user_id=current_user_id, follow_user_id=user_id)
+        db.session.add(new_follow)
+    else:
+        # フォローが存在する場合、削除
+        db.session.delete(follow)
+
+    db.session.commit()
+    return redirect(url_for('sns.user_page', user_id=user_id))
+
+
+@dt.route("/mypage/following", methods=["GET"])
+@login_required
+def following_list():
+    followings = Follow.query.filter_by(user_id=current_user.id).all()
+    return render_template("sns/following_list.html", followings=followings)
+
+@dt.route("/mypage/followers", methods=["GET"])
+@login_required
+def followers_list():
+    # 現在のユーザーをフォローしているユーザーを取得
+    followers = Follow.query.filter_by(follow_user_id=current_user.id).all()
+    followers_users = [User.query.get(follow.user_id) for follow in followers]
+    
+    return render_template("sns/followers_list.html", followers=followers_users)
+

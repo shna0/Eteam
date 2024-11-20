@@ -5,8 +5,13 @@
     {{ user.username }}のページ
 </h1>
 
+<!-- フォロー一覧 -->
+<a href="{{ url_for('sns.following_list') }}" class="btn btn-info">フォロー一覧を見る</a>
+<!-- フォロワー一覧 -->
+<a href="{{ url_for('sns.followers_list') }}" class="btn btn-info">フォロワー一覧を見る</a>
+
 {% if user == current_user %}
-<a href="{{ url_for('sns.edit_icon', user_id=user.user_id) }}" class="btn btn-primary">アイコンを変更</a>
+<a href="{{ url_for('sns.edit_icon', user_id=user.id) }}" class="btn btn-primary">アイコンを変更</a>
 {% endif %}
 
 <h2>投稿履歴</h2>

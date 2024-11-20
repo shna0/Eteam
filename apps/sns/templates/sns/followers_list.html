@@ -1,0 +1,23 @@
+{% extends "sns/base.html" %}
+{% block content %}
+
+<h2>{{ current_user.username }}のフォロワー一覧</h2>
+
+<div class="followers-list">
+    {% if followers %}
+        <ul>
+        {% for follower in followers %}
+            <li>
+                <a href="{{ url_for('sns.user_page', user_id=follower.id) }}">
+                    <img src="{{ url_for('sns.image_file', filename=follower.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
+                </a>
+                {{ follower.username }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>フォロワーがいません。</p>
+    {% endif %}
+</div>
+
+{% endblock %}

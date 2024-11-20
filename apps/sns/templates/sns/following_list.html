@@ -1,0 +1,14 @@
+{% extends "sns/base.html" %}
+{% block content %}
+<h1>フォロー一覧</h1>
+<ul>
+    {% for follow in followings %}
+    <li>
+        <a href="{{ url_for('sns.user_page', user_id=follow.follow_user_id) }}">
+            <img src="{{ url_for('sns.image_file', filename=followings.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
+        </a>
+        {{ follow.followed.username }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

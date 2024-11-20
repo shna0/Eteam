@@ -2,10 +2,11 @@ from apps.app import db, login_manager
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from apps.sns.models import Follow
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, index=True)
     email = db.Column(db.String, unique=True, index=True)
     password_hash = db.Column(db.String)
@@ -28,7 +29,13 @@ class User(db.Model, UserMixin):
         return User.query.filter_by(email=self.email).first() is not None
     
     def get_id(self):
-        return str(self.user_id)  # user_idを返すようにする
+        return str(self.id)  # user_idを返すようにする
+    
+    # crud/models.py
+    @property
+    def is_followed_by_current_user(self):
+        from flask_login import current_user
+        return Follow.query.filter_by(user_id=current_user.id, follow_user_id=self.id).first() is not None
 
 @login_manager.user_loader
 def load_user(user_id):
