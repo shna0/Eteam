@@ -173,7 +173,7 @@ def edit_icon(user_id):
 
         db.session.commit()
         flash("アイコンとユーザー名を更新しました")
-        return redirect(url_for("sns.user_page", user_id=user_id))
+        return redirect(url_for("sns.mypage", user_id=user_id))
 
     # 初期データとして現在のユーザー名をフォームにセット
     form.username.data = user.username
