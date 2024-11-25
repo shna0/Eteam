@@ -3,12 +3,12 @@
 <h1>{{ user.username }} のプロフィールを編集</h1>
 <form method="POST" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
-
+    <!-- ユーザー名の変更 -->
     <div class="form-group">
         {{ form.username.label }}
         {{ form.username(class="form-control") }}
     </div>
-
+    <!-- アイコンの変更 -->
     <div class="form-group">
         {{ form.image.label }}
         {{ form.image(class="form-control-file") }}
