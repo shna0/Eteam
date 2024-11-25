@@ -74,14 +74,13 @@ def search():
     if form.validate_on_submit():
         # 検索キーワードの取得
         keyword = form.keyword.data.strip() if form.keyword.data else None
-        print(f"検索キーワード: {keyword}")
 
         if keyword:
             # 検索クエリの実行
             posts = Post.query.filter(
                 (Post.title.contains(keyword)) | (Post.content.contains(keyword))
-            ).all()
-            print(f"検索結果の件数: {len(posts)}")
+                ).order_by(Post.timestamp.desc()).all()
+
         else:
             flash("検索キーワードを入力してください。")
     else:

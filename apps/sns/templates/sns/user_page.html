@@ -22,7 +22,7 @@
         <div class="post">
             <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
             <p>{{ post.content }}</p>
-            <small>投稿日: {{ post.timestamp }}</small>
+            <small>投稿日: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
         </div>
         <hr />
         {% endfor %}
@@ -37,7 +37,7 @@
         {% for comment in comments %}
         <div class="comment">
             <p>{{ comment.content }}</p>
-            <small>投稿先: <a href="{{ url_for('sns.post_detail', post_id=comment.post_id) }}">投稿 {{ comment.post_id }}</a> | 投稿日: {{ comment.timestamp }}</small>
+            <small>投稿先: <a href="{{ url_for('sns.post_detail', post_id=comment.post_id) }}">投稿 {{ comment.post_id }}</a> | 投稿日: {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
         </div>
         <hr />
         {% endfor %}

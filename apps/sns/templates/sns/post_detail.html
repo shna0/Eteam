@@ -1,34 +1,60 @@
 {% extends "sns/base.html" %}
 {% block content %}
-<div class="container">
-    <h2>{{ post.title }}</h2>
-    <p>{{ post.content }}</p>
-    {% for image in post.images %}
-    <img src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="max-width: 100%; height: auto;" />
-    {% endfor %}
-    <small>投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp }}</small>
-    
-    <hr />
-    
-    <h3>コメント</h3>
-    {% for comment in comments %}
-    <div class="comment">
-        <p><strong>{{ comment.user.username }}</strong> 投稿日時: {{ comment.timestamp }}</p>
-        <p>{{ comment.content }}</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <div class="post">
+                        <a href="{{ url_for('sns.user_page', user_id=post.user_id) if post.user_id != current_user.id else url_for('sns.mypage') }}">
+                            <img  src="{{ url_for('sns.image_file', filename=post.user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
+                        </a>
+                        <h2 style="display:inline">{{ post.title }}</h2>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>{{ post.content }}</p>
+                    {% for image in post.images %}
+                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="width: 100%; height: 400px; object-fit: contain;"/>
+                    {% endfor %}
+                    <small>投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                <hr />
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h3>コメント</h3>
+                </div>
+                <div class="card-body"></div>
+                    {% for comment in comments %}
+                    <div class="comment mx-3">
+                        <a href="{{ url_for('sns.user_page', user_id=comment.user_id) if comment.user_id != current_user.id else url_for('sns.mypage') }}">
+                            <img  src="{{ url_for('sns.image_file', filename=comment.user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
+                        </a>
+                        <p style="display:inline"><strong>{{ comment.user.username }}</strong></p>
+                        <p class="pt-2">{{ comment.content }}</p>
+                        <small>投稿日時: {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <hr />
+                    {% endfor %}
+                    <div class="pt-2 mx-3">
+                        <h4>コメントを追加</h4>
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            <div class="form-group">
+                                {{ form.content.label }}
+                                {{ form.content(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">コメントを投稿</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <hr />
-    {% endfor %}
-
-    <h4>コメントを追加</h4>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.content.label }}
-            {{ form.content(class="form-control") }}
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">コメントを投稿</button>
-        </div>
-    </form>
 </div>
 {% endblock %}

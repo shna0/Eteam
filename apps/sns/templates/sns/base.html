@@ -27,26 +27,30 @@
                     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('sns.index') }}">
                         <div class="sidebar-brand-text mx-3">SNS</div>
                     </a>
-                    <!-- 投稿検索フォームを追加する -->
-                    {% if request.endpoint == 'sns.index' or (request.endpoint == 'sns.post_detail' and post_id is defined) %}
-                        <!-- URL生成部分 -->
-                        <div class="btn-group">
-                            <form method="POST" action="{{ url_for('sns.search') }}">
-                                {{ form.hidden_tag() }}
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="keyword" placeholder="検索キーワード" required>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit">検索</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    {% endif %}
-                    
 
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a href="{{ url_for('sns.mypage') }}" class="nav-link">{{ current_user.username }}</a>
+                            <a href="{{ url_for('sns.mypage') }}" class="nav-link">マイページ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('sns.post') }}" class="nav-link">新規投稿</a>
+                        </li>
+                        <!-- 投稿検索フォーム -->
+                        <li class="nav-item">
+                            {% if request.endpoint == 'sns.index' or (request.endpoint == 'sns.post_detail' and post_id is defined) %}
+                                <!-- URL生成部分 -->
+                                <div class="btn-group">
+                                    <form method="POST" action="{{ url_for('sns.search') }}">
+                                        {{ form.hidden_tag() }}
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="keyword" placeholder="投稿検索" required>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="submit">検索</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
                         </li>                
                         <li class="nav-item">
                             <a href="{{ url_for('auth.logout') }}" class="nav-link">ログアウト</a>
@@ -66,9 +70,7 @@
             </ul>
             <div id="content-wrapper" class="d-flex flex-column">
                 <div id="content">
-                    <section class="container-fluid">
-                        {% block content %}{% endblock %}
-                    </section>
+                    {% block content %}{% endblock %}
                 </div>
             </div>
         </div>  
