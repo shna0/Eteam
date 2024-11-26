@@ -1,19 +1,26 @@
 {% extends "sns/base.html" %}
 {% block content %}
-<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow p-4">
+<nav class="navbar navbar-expand navbar-dark bg-white topbar mb-4 static-top shadow p-4">
     <h2>
         <img src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
         {{ user.username }}
     </h2>
 
-    <!-- フォロー一覧 -->
-    <a href="{{ url_for('sns.following_list') }}">フォロー一覧</a>
-    <!-- フォロワー一覧 -->
-    <a href="{{ url_for('sns.followers_list') }}">フォロワー一覧</a>
-
-    {% if user == current_user %}
-    <a href="{{ url_for('sns.edit_icon', user_id=user.id) }}">プロフィールを編集</a>
-    {% endif %}
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('sns.following_list') }}">フォロー中<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('sns.followers_list') }}">フォロワー</a>
+          </li>
+          <li class="nav-item">
+            {% if user == current_user %}
+            <a class="nav-link" href="{{ url_for('sns.edit_icon', user_id=user.id) }}">プロフィールを編集</a>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
 </nav>
 <h2>投稿履歴</h2>
 <div class="posts">
