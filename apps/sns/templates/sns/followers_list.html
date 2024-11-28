@@ -1,23 +1,32 @@
 {% extends "sns/base.html" %}
 {% block content %}
 
-<h2>フォロワー一覧</h2>
-
-<div class="followers-list">
-    {% if followers %}
-        <ul>
-        {% for follower in followers %}
-            <li>
-                <a href="{{ url_for('sns.user_page', user_id=follower.id) }}">
-                    <img src="{{ url_for('sns.image_file', filename=follower.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
-                </a>
-                {{ follower.username }}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>フォロワーがいません。</p>
-    {% endif %}
+<nav class="navbar navbar-expand navbar-dark bg-light topbar mb-4 static-top shadow p-4">
+    <h2>フォロワー</h2>
+</nav>
+<div class="container">
+    <div class="row">
+        {% if followers %}
+            <div class="col-12 mt-4">
+                <div class="d-flex flex-wrap">
+                    {% for follower in followers %}
+                            <a href="{{ url_for('sns.user_page', user_id=follower.id) }}" 
+                               class="card shadow mx-2 mb-4" 
+                               style="color: inherit; width: 18rem;">
+                                <div class="card-body text-center">
+                                    <img src="{{ url_for('sns.image_file', filename=follower.icon_path or 'default_icon.png') }}" 
+                                        alt="アイコン"  
+                                        style="width: 60px; height: 60px; border-radius: 50%;" />
+                                    <h5 class="card-title mt-2">{{ follower.username }}</h5>
+                                </div>
+                            </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <p>フォロワーがいません。</p>
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}

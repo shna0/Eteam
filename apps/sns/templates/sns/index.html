@@ -3,10 +3,30 @@
 
 <div class="container-fluid">
     <div class="row">
+        {% if users %}
+            <div class="col-12 mt-4">
+                <div class="d-flex flex-wrap">
+                    {% for user in users %}
+                        <a href="{{ url_for('sns.user_page', user_id=user.id) }}" 
+                           class="card shadow mx-2 mb-4" 
+                           style="color: inherit; width: 18rem;">
+                            <div class="card-body text-center">    
+                                <img 
+                                    src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" 
+                                    alt="ユーザーアイコン" 
+                                    style="width: 60px; height: 60px; border-radius: 50%;" 
+                                />
+                                <h5 class="card-title mt-2">{{ user.username }}</h5>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
         <div class="posts d-flex flex-row flex-wrap">
             {% for post in posts %}
                 <div class="col-lg-6 mb-4 pt-4" >
-                    <div class="card shadow mb-2" >
+                    <div class="card shadow mx-2" >
                         <!-- Card Header -->
                             <div class="card-header py-3" >
                                 <h6 class="m-0 font-weight-bold text-primary" >
@@ -14,7 +34,7 @@
                                         <a href="{{ url_for('sns.user_page', user_id=post.user_id) if post.user_id != current_user.id else url_for('sns.mypage') }}">
                                             <img  src="{{ url_for('sns.image_file', filename=post.user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
                                         </a>
-                                        <a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">
+                                        <a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}" >
                                             {{ post.title }}
                                         </a>
                                     </div>

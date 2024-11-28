@@ -66,30 +66,44 @@ def post():
 def search():
     form = SearchForm()
     posts = []
+    users = []
 
-    # デバッグ: リクエストの種類とフォーム入力データを確認
+    # デバッグ情報を表示
     print(f"リクエストメソッド: {request.method}")
     print(f"フォームの入力データ: {form.keyword.data}")
 
     if form.validate_on_submit():
-        # 検索キーワードの取得
+        print("フォームがバリデーションを通過しました")
         keyword = form.keyword.data.strip() if form.keyword.data else None
 
         if keyword:
-            # 検索クエリの実行
+            print(f"検索キーワード: {keyword}")
+
+            # 投稿を検索
             posts = Post.query.filter(
                 (Post.title.contains(keyword)) | (Post.content.contains(keyword))
-                ).order_by(Post.timestamp.desc()).all()
+            ).order_by(Post.timestamp.desc()).all()
+            print(f"投稿の検索結果: {posts}")
 
+            # ユーザーを検索
+            users = User.query.filter(
+                User.username.contains(keyword)
+            ).order_by(User.username.asc()).all()
+            print(f"ユーザーの検索結果: {users}")
         else:
             flash("検索キーワードを入力してください。")
     else:
-        # フォームのバリデーションエラー時
         flash("フォームの入力にエラーがあります。")
-        print("フォームのバリデーションに失敗しました。")
+        print("フォームのエラー:", form.errors)
 
     # テンプレートへのデータ渡し
-    return render_template("sns/index.html", posts=posts, form=form)
+    return render_template(
+        "sns/index.html", 
+        posts=posts, 
+        users=users, 
+        form=form
+    )
+
 
 @dt.route("/images/delete/<string:image_id>", methods=["POST"])
 @login_required

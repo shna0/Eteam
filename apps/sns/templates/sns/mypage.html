@@ -1,37 +1,52 @@
 {% extends "sns/base.html" %}
 {% block content %}
-<nav class="navbar navbar-expand navbar-dark bg-white topbar mb-4 static-top shadow p-4">
+<nav class="navbar navbar-expand navbar-dark bg-light topbar mb-4 static-top shadow p-4">
     <h2>
         <img src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
         {{ user.username }}
     </h2>
 
-    <div class="collapse navbar-collapse">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('sns.following_list') }}">フォロー中</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('sns.followers_list') }}">フォロワー</a>
-          </li>
-          <li class="nav-item">
-            {% if user == current_user %}
-            <a class="nav-link" href="{{ url_for('sns.edit_icon', user_id=user.id) }}">プロフィールを編集</a>
-            {% endif %}
-          </li>
+    <div class="navbar navbar-expand-lg navbar-light bg-light">
+        <ul class="collapse navbar-collapse mx-3">
+            <dev class="nav-item active">
+                <a class="nav-link me-2" href="{{ url_for('sns.following_list') }}">フォロー中</a>
+            </dev>
+            <dev class="nav-item me-2">
+                <a class="nav-link" href="{{ url_for('sns.followers_list') }}">フォロワー</a>
+            </dev>
+            <dev class="nav-item me-2">
+                {% if user == current_user %}
+                    <a class="nav-link" href="{{ url_for('sns.edit_icon', user_id=user.id) }}">プロフィールを編集</a>
+                {% endif %}
+            </dev>
         </ul>
-      </div>
+    </div>
 </nav>
 <h2>投稿履歴</h2>
-<div class="posts">
+<div class="posts d-flex flex-row flex-wrap">
     {% if posts %}
         {% for post in posts %}
-        <div class="post">
-            <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
-            <p>{{ post.content }}</p>
-            <small>投稿日: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-        </div>
-        <hr />
+            <div class="col-lg-6 mb-4 pt-4" >
+                <div class="card shadow mx-2" >
+                    <!-- Card Header -->
+                    <div class="card-header py-3" >
+                        <div class="post">
+                            <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ post.content }}</p>
+                        <div class="text-center">
+                            {% for image in post.images %}
+                            <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="width: 100%; height: 300px; object-fit: cover;" />
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4 text-center small">
+                            投稿日時: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     {% else %}
         <p>投稿がありません。</p>
@@ -39,17 +54,26 @@
 </div>
 
 <h2>コメント履歴</h2>
-<div class="comments">
-    {% if comments %}
-        {% for comment in comments %}
-        <div class="comment">
-            <p>{{ comment.content }}</p>
-            <small>投稿先: <a href="{{ url_for('sns.post_detail', post_id=comment.post_id) }}">投稿 {{ comment.post_id }}</a> | 投稿日: {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-        </div>
-        <hr />
-        {% endfor %}
-    {% else %}
-        <p>コメントがありません。</p>
-    {% endif %}
-</div>
+<div class="posts d-flex flex-row flex-wrap"></div>
+    <div class="comments">
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="col-lg-6 mb-4 pt-4" >
+                    <div class="card shadow mx-2" >
+                        <div class="comment">
+                            <div class="card-header py-3" >
+                                <h3><a href="{{ url_for('sns.post_detail', post_id=comment.post_id) }}">{{ comment.post.title }}</a></h3>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ comment.content }}</p>
+                                <small>投稿日: {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>コメントがありません。</p>
+        {% endif %}
+    </div>
 {% endblock %}
