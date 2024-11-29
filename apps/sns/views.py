@@ -1,15 +1,22 @@
 import uuid
 from pathlib import Path
-from flask import Blueprint, render_template, current_app, send_from_directory, redirect, url_for, flash, request
+from flask import Blueprint, render_template, current_app, send_from_directory, redirect, url_for, flash, request, jsonify
 from apps.app import db
 from apps.crud.models import User
 from apps.sns.models import Image,Post,Follow,Comment
 from apps.sns.forms import UploadImageForm, DeleteForm, PostForm, CommentForm, SearchForm, FollowForm
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
+from apps.config import load_tags
 
 # template_folderを指定する（staticは指定しない）
 dt = Blueprint("sns", __name__, template_folder="templates")
+
+# load_locations 関数を定義
+def load_locations():
+    with open(current_app.config['TAG_JSON_PATH'], encoding='utf-8') as f:
+        locations_data = json.load(f)
+    return locations_data
 
 # dtアプリケーションを使ってエンドポイントを作成する
 @dt.route("/")
@@ -31,17 +38,49 @@ def image_file(filename):
 def post():
     form = PostForm()
     
+    # 都道府県の選択肢設定
+    form.prefecture.choices = [
+        (tag_data['id'], tag_data['name']) for data in load_tags() for tag_data in data.values()
+    ]
+    
+    # 市区町村の選択肢設定
+    cities = [("", "都道府県を選んでください")]
+    for data in load_tags():
+        for tag_data in data.values():
+            prefecture_name = tag_data['name']
+            for city_data in tag_data['city']:
+                city_name = city_data['city']
+                city_code = city_data['citycode']
+                cities.append((city_code, f"{prefecture_name} - {city_name}"))
+
+    # 初期の市区町村選択肢設定
+    form.city.choices = cities
+
+    # 都道府県が選択された場合に、その都道府県に関連する市区町村をロード
+    if form.prefecture.data:
+        selected_prefecture = next((item for item in load_tags() if item.get('id') == form.prefecture.data), None)
+        if selected_prefecture:
+            cities_for_prefecture = selected_prefecture.get('city', [])
+            form.city.choices = [(city["citycode"], city["city"]) for city in cities_for_prefecture]
+
+    # フォームが送信された場合
     if form.validate_on_submit():
-        # 投稿を作成
+        print("フォームが送信されました")
+        print("prefecture.data:", form.prefecture.data)
+        print("city.data:", form.city.data)
+
+        # 投稿を処理
         post = Post(
             title=form.title.data,
             content=form.content.data,
             user_id=current_user.id,
+            prefecture_id=form.prefecture.data,
+            city_code=form.city.data,
         )
         db.session.add(post)
         db.session.commit()
 
-        # アップロードされた画像を保存
+        # 画像アップロード処理
         if form.images.data:
             for file in form.images.data:
                 ext = Path(file.filename).suffix
@@ -49,60 +88,85 @@ def post():
                 upload_path = Path(current_app.config["UPLOAD_FOLDER"], unique_filename)
                 file.save(upload_path)
 
-                # 画像をImageインスタンスとして保存
                 image = Image(post_image_path=unique_filename, post_id=post.post_id)
                 db.session.add(image)
         
         db.session.commit()
         flash("投稿が完了しました")
-        return redirect(url_for("sns.index"))  # 投稿リストにリダイレクト
-
-    # GETメソッドまたはフォームのバリデーション失敗時にフォームを再表示
+        return redirect(url_for("sns.index"))
+    else:
+        print("フォームのバリデーションに失敗しました")
+        print(form.errors)  # エラー内容を確認
+    
     return render_template("sns/post.html", form=form)
 
+
+import json
+from flask import current_app, request, flash, render_template
+from flask_login import login_required
 
 @dt.route("/search", methods=["GET", "POST"])
 @login_required
 def search():
     form = SearchForm()
+    locations_data = load_locations()  # JSONデータを読み込む
     posts = []
     users = []
 
-    # デバッグ情報を表示
-    print(f"リクエストメソッド: {request.method}")
-    print(f"フォームの入力データ: {form.keyword.data}")
-
     if form.validate_on_submit():
-        print("フォームがバリデーションを通過しました")
         keyword = form.keyword.data.strip() if form.keyword.data else None
 
         if keyword:
-            print(f"検索キーワード: {keyword}")
+            # 都道府県名や市区町村名を検索
+            matching_locations = []
+            for location in locations_data:
+                for pref_id, pref_data in location.items():
+                    # 都道府県名が一致する場合
+                    if keyword in pref_data["name"]:
+                        matching_locations.append({
+                            "id": pref_id,
+                            "name": pref_data["name"],
+                            "city": None  # 都道府県名だけの場合
+                        })
 
-            # 投稿を検索
+                    # 市区町村名が一致する場合
+                    for city in pref_data["city"]:
+                        if keyword in city["city"]:
+                            matching_locations.append({
+                                "id": pref_id,
+                                "name": pref_data["name"],
+                                "city": city["city"]
+                            })
+
+            # 検索結果をデバッグ用に表示
+            print("マッチしたロケーション:", matching_locations)
+
+            # マッチしたロケーションに基づいて投稿を検索
+            prefecture_ids = [loc['id'] for loc in matching_locations if loc['city'] is None]
+            city_codes = [city["citycode"] for loc in matching_locations if loc['city']]
+
+            # 投稿を検索（タイトルや内容、都道府県ID、市区町村コードで検索）
             posts = Post.query.filter(
-                (Post.title.contains(keyword)) | (Post.content.contains(keyword))
+                (Post.title.contains(keyword)) |
+                (Post.content.contains(keyword)) |
+                (Post.prefecture_id.in_(prefecture_ids)) |
+                (Post.city_code.in_(city_codes))
             ).order_by(Post.timestamp.desc()).all()
-            print(f"投稿の検索結果: {posts}")
 
-            # ユーザーを検索
+            # ユーザーを検索（ユーザー名で検索）
             users = User.query.filter(
                 User.username.contains(keyword)
             ).order_by(User.username.asc()).all()
+
+            print(f"投稿の検索結果: {posts}")
             print(f"ユーザーの検索結果: {users}")
         else:
             flash("検索キーワードを入力してください。")
-    else:
-        flash("フォームの入力にエラーがあります。")
-        print("フォームのエラー:", form.errors)
+    
+    return render_template("sns/index.html", posts=posts, users=users, form=form)
 
-    # テンプレートへのデータ渡し
-    return render_template(
-        "sns/index.html", 
-        posts=posts, 
-        users=users, 
-        form=form
-    )
+
+
 
 
 @dt.route("/delete/<string:image_id>", methods=["POST"])
@@ -225,3 +289,38 @@ def followers_list():
     
     return render_template("sns/followers_list.html", followers=followers_users)
 
+@dt.route("/tags/prefectures", methods=["GET"])
+def get_prefectures():
+    tags = load_tags()
+    prefectures = [{"id": p["id"], "name": p["name"]} for p in tags.values()]
+    return jsonify(prefectures)
+
+@dt.route("/tags/cities/<pref_id>", methods=["GET"])
+def get_cities(pref_id):
+    try:
+        # load_tags() の戻り値がリスト形式
+        tags = load_tags()
+        current_app.logger.debug(f"tags: {tags}")  # tagsの内容を確認
+        current_app.logger.debug(f"受け取ったpref_id: {pref_id}")  # 受け取ったpref_idを確認
+
+        # リスト内で都道府県IDが一致するものを探す
+        prefecture_data = None
+        for tag in tags:
+            prefecture_data = tag.get(pref_id)
+            if prefecture_data:
+                break
+        
+        if not prefecture_data:
+            current_app.logger.error(f"都道府県ID {pref_id} が見つかりませんでした。")
+            return jsonify({"error": "都道府県データが見つかりません"}), 404
+        
+        cities = prefecture_data.get("city", [])
+        
+        if not cities:
+            return jsonify({"error": "市区町村データが見つかりません"}), 404
+        
+        return jsonify(cities)
+    
+    except Exception as e:
+        current_app.logger.error(f"エラーが発生しました: {e}")
+        return jsonify({"error": "データの取得に失敗しました"}), 500

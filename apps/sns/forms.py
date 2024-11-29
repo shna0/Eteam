@@ -9,6 +9,8 @@ class PostForm(FlaskForm):
     title = StringField("タイトル", validators=[DataRequired()])
     content = TextAreaField("内容", validators=[DataRequired()])
     images = MultipleFileField("画像", validators=[FileAllowed(['jpg', 'png', 'gif'], "画像ファイルのみアップロード可能です")])
+    prefecture = SelectField("都道府県", choices=[], validators=[DataRequired()])
+    city = SelectField("市区町村", choices=[], validators=[DataRequired()])
     submit = SubmitField("投稿")
 
 

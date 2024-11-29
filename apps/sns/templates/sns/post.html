@@ -3,36 +3,45 @@
 <div class="container-fluid">
     <div class="row">
         <h2 class="my-4">新規投稿</h2>
+
         <form method="POST" enctype="multipart/form-data" class="w-100">
             {{ form.hidden_tag() }}
-
+        
             <div class="row">
                 <!-- 左側のカード -->
                 <div class="col-md-6">
                     <div class="card shadow mb-4 card-unified">
                         <div class="card-body">
                             <div class="form-group mb-3">
-                                {{ form.title.label(class="form-label") }}
-                                {{ form.title(class="form-control") }}
+                                <label for="title" class="form-label">{{ form.title.label }}</label>
+                                {{ form.title(id="title", class="form-control") }}
                             </div>
                             <div class="form-group">
-                                {{ form.content.label(class="form-label") }}
-                                {{ form.content(class="form-control", rows=5) }}
+                                <label for="content" class="form-label">{{ form.content.label }}</label>
+                                {{ form.content(id="content", class="form-control", rows=5) }}
                             </div>
                         </div>
                     </div>
                 </div>
-
+        
                 <!-- 右側のカード -->
                 <div class="col-md-6">
                     <div class="card shadow mb-4 card-unified">
                         <div class="card-body">
                             <div id="drop-area" class="drop-area-custom border border-dashed rounded">
                                 <div class="form-group mb-3">
-                                    {{ form.images.label(class="form-label") }}
-                                    {{ form.images(class="form-control-file") }}
+                                    <label for="images" class="form-label">{{ form.images.label }}</label>
+                                    {{ form.images(id="images", class="form-control-file") }}
                                 </div>
-                            </div>                    
+                            </div>
+                            <div class="form-group">
+                                <label for="prefecture" class="form-label">{{ form.prefecture.label }}</label>
+                                {{ form.prefecture(id="prefecture", class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                <label for="city" class="form-label">{{ form.city.label }}</label>
+                                {{ form.city(id="city", class="form-control") }}
+                            </div>
                             <div class="form-group pt-4">
                                 <button type="submit" class="btn btn-primary w-100">投稿</button>
                             </div>
@@ -41,6 +50,48 @@
                 </div>
             </div>
         </form>
+        
+        
+        
     </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelector('#prefecture').addEventListener('change', function() {
+    const prefId = parseInt(this.value);  // 選択された都道府県IDを整数に変換
+    console.log('選択された都道府県ID:', prefId);  // ここで選択されたIDを確認
+
+    // 都道府県が選択されていない場合は、選択肢をリセット
+    if (!prefId) {
+        document.querySelector('#city').innerHTML = '<option value="">市区町村を選んでください</option>';
+        return;
+    }
+
+    fetch(`/tags/cities/${prefId}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("エラーが発生しました");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const citySelect = document.querySelector('#city');
+        
+        if (Array.isArray(data)) {
+            citySelect.innerHTML = data.map(city => 
+                `<option value="${city.citycode}">${city.city}</option>`
+            ).join('');
+        } else {
+            console.error("データ形式が予期しない形式です。", data);
+        }
+    })
+    .catch(error => {
+        console.error("市区町村データの取得エラー:", error);
+        alert("市区町村データの取得に失敗しました。");
+    });
+});
+</script>
+{% endblock %}
+

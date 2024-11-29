@@ -14,6 +14,9 @@ class Post(db.Model):
     # Post が所有する画像
     images = db.relationship("Image", back_populates="post", cascade="all, delete-orphan")
 
+    prefecture_id = db.Column(db.String(10))  # 都道府県ID
+    city_code = db.Column(db.String(10))      # 市区町村コード
+
 
 class Image(db.Model):
     __tablename__ = "images"
