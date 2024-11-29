@@ -23,15 +23,28 @@
 </nav>
 
 <h2>投稿履歴</h2>
-<div class="posts">
+<div class="posts d-flex flex-row flex-wrap">
     {% if posts %}
         {% for post in posts %}
-        <div class="post">
-            <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
-            <p>{{ post.content }}</p>
-            <small>投稿日: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-        </div>
-        <hr />
+            <div class="col-lg-6 mb-4 pt-4" >
+                <div class="card shadow mx-2" >
+                    <!-- Card Header -->
+                    <div class="card-header py-3" >
+                        <div class="post">
+                            <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ post.content }}</p>
+                        <div class="text-center">
+                            {% for image in post.images %}
+                            <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="width: 100%; height: 300px; object-fit: cover;" />
+                            {% endfor %}
+                        </div>
+                        <small>投稿日: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     {% else %}
         <p>このユーザーの投稿はありません。</p>

@@ -105,9 +105,9 @@ def search():
     )
 
 
-@dt.route("/images/delete/<string:image_id>", methods=["POST"])
+@dt.route("/delete/<string:image_id>", methods=["POST"])
 @login_required
-def delete_image(image_id):
+def delete(image_id):
     try:
         db.session.query(Image).filter(Image.post_image_id == image_id).delete()  # 修正: `post_image_id`を使用
         db.session.commit()
