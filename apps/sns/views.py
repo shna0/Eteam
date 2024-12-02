@@ -9,6 +9,9 @@ from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 from apps.config import load_tags
 
+import json
+
+
 # template_folderを指定する（staticは指定しない）
 dt = Blueprint("sns", __name__, template_folder="templates")
 
@@ -92,7 +95,6 @@ def post():
                 db.session.add(image)
         
         db.session.commit()
-        flash("投稿が完了しました")
         return redirect(url_for("sns.index"))
     else:
         print("フォームのバリデーションに失敗しました")
@@ -101,9 +103,7 @@ def post():
     return render_template("sns/post.html", form=form)
 
 
-import json
-from flask import current_app, request, flash, render_template
-from flask_login import login_required
+
 
 @dt.route("/search", methods=["GET", "POST"])
 @login_required
@@ -161,7 +161,7 @@ def search():
             print(f"投稿の検索結果: {posts}")
             print(f"ユーザーの検索結果: {users}")
         else:
-            flash("検索キーワードを入力してください。")
+             flash("検索キーワードを入力してください。")
     
     return render_template("sns/index.html", posts=posts, users=users, form=form)
 
@@ -176,7 +176,6 @@ def delete(image_id):
         db.session.query(Image).filter(Image.post_image_id == image_id).delete()  # 修正: `post_image_id`を使用
         db.session.commit()
     except SQLAlchemyError as e:
-        flash("画像削除処理でエラーが発生しました")
         current_app.logger.error(e)
         db.session.rollback()
 
@@ -192,7 +191,6 @@ def post_detail(post_id):
         comment = Comment(content=form.content.data, post_id=post_id, user_id=current_user.id)
         db.session.add(comment)
         db.session.commit()
-        flash("コメントを追加しました！")
         return redirect(url_for('sns.post_detail', post_id=post_id))
 
     return render_template("sns/post_detail.html", post=post, comments=comments, form=form)
@@ -223,7 +221,7 @@ def edit_icon(user_id):
 
     # ユーザーがログイン中であり、自身の情報のみ編集可能とする
     if user != current_user:
-        flash("他のユーザーの情報を編集することはできません。")
+        # flash("他のユーザーの情報を編集することはできません。")
         return redirect(url_for("sns.user_page", user_id=user_id))
 
     form = UploadImageForm()
@@ -234,7 +232,7 @@ def edit_icon(user_id):
         if new_username and len(new_username) <= 50:
             user.username = new_username
         else:
-            flash("ユーザー名が無効です。")
+            # flash("ユーザー名が無効です。")
             return redirect(url_for("sns.edit_icon", user_id=user_id))
 
         # 画像ファイルの処理
@@ -249,7 +247,7 @@ def edit_icon(user_id):
             user.icon_path = unique_filename
 
         db.session.commit()
-        flash("アイコンとユーザー名を更新しました")
+        # flash("アイコンとユーザー名を更新しました")
         return redirect(url_for("sns.mypage", user_id=user_id))
 
     # 初期データとして現在のユーザー名をフォームにセット
