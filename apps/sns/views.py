@@ -116,35 +116,22 @@ def search():
     if form.validate_on_submit():
         keyword = form.keyword.data.strip() if form.keyword.data else None
 
-        if keyword:
-            # 都道府県名や市区町村名を検索
-            matching_locations = []
-            for location in locations_data:
-                for pref_id, pref_data in location.items():
-                    # 都道府県名が一致する場合
-                    if keyword in pref_data["name"]:
-                        matching_locations.append({
-                            "id": pref_id,
-                            "name": pref_data["name"],
-                            "city": None  # 都道府県名だけの場合
-                        })
+        prefecture_ids = []
+        city_codes = []
 
-                    # 市区町村名が一致する場合
+
+        if keyword:
+            # 都道府県名の一致を検索
+            for location in locations_data:
+                for pref_id, pref_data in location.items():  # locationは辞書として扱う
+                    if keyword in pref_data["name"]:
+                        prefecture_ids.append(pref_id)
+
+                    # 市区町村名の一致を検索
                     for city in pref_data["city"]:
                         if keyword in city["city"]:
-                            matching_locations.append({
-                                "id": pref_id,
-                                "name": pref_data["name"],
-                                "city": city["city"]
-                            })
-
-            # 検索結果をデバッグ用に表示
-            print("マッチしたロケーション:", matching_locations)
-
-            # マッチしたロケーションに基づいて投稿を検索
-            prefecture_ids = [loc['id'] for loc in matching_locations if loc['city'] is None]
-            city_codes = [city["citycode"] for loc in matching_locations if loc['city']]
-
+                            city_codes.append(city["citycode"])
+   
             # 投稿を検索（タイトルや内容、都道府県ID、市区町村コードで検索）
             posts = Post.query.filter(
                 (Post.title.contains(keyword)) |
@@ -158,10 +145,6 @@ def search():
                 User.username.contains(keyword)
             ).order_by(User.username.asc()).all()
 
-            print(f"投稿の検索結果: {posts}")
-            print(f"ユーザーの検索結果: {users}")
-        else:
-             flash("検索キーワードを入力してください。")
     
     return render_template("sns/index.html", posts=posts, users=users, form=form)
 
