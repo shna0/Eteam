@@ -33,6 +33,12 @@
                         <div class="post">
                             <h3><a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">{{ post.title }}</a></h3>
                         </div>
+                        {% if user == current_user %}
+                            <form action="{{ url_for('sns.delete_post', post_id=post.post_id) }}" method="post" class="mt-2 d-flex justify-content-end" onsubmit="return confirmDelete()">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="btn btn-danger">削除</button>
+                            </form>
+                        {% endif %}
                     </div>
                     <div class="card-body">
                         <p>{{ post.content }}</p>
@@ -63,6 +69,12 @@
                         <div class="comment">
                             <div class="card-header py-3" >
                                 <h3><a href="{{ url_for('sns.post_detail', post_id=comment.post_id) }}">{{ comment.post.title }}</a></h3>
+                                {% if comment.user == current_user %}
+                                    <form action="{{ url_for('sns.delete_comment', comment_id=comment.comment_id) }}" method="post" class="mt-2 d-flex justify-content-end" onsubmit="return confirmDelete()">
+                                        {{ form.hidden_tag() }}
+                                        <button type="submit" class="btn btn-danger">削除</button>
+                                    </form>
+                                {% endif %}
                             </div>
                             <div class="card-body">
                                 <p>{{ comment.content }}</p>
@@ -77,3 +89,13 @@
         {% endif %}
     </div>
 {% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    function confirmDelete() {
+        return window.confirm("本当に削除しますか？この操作は元に戻せません。");
+    }
+</script>
+{% endblock %}
+
+

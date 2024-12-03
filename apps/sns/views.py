@@ -148,20 +148,6 @@ def search():
     
     return render_template("sns/index.html", posts=posts, users=users, form=form)
 
-
-
-
-
-@dt.route("/delete/<string:image_id>", methods=["POST"])
-@login_required
-def delete(image_id):
-    try:
-        db.session.query(Image).filter(Image.post_image_id == image_id).delete()  # 修正: `post_image_id`を使用
-        db.session.commit()
-    except SQLAlchemyError as e:
-        current_app.logger.error(e)
-        db.session.rollback()
-
 @dt.route("/post/<int:post_id>", methods=["GET", "POST"])
 @login_required
 def post_detail(post_id):
@@ -181,11 +167,12 @@ def post_detail(post_id):
 @dt.route("/mypage", methods=["GET"])
 @login_required
 def mypage():
+    form = DeleteForm()
     # ログインしているユーザーの投稿とコメントを取得
     user_posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.timestamp.desc()).all()
     user_comments = Comment.query.filter_by(user_id=current_user.id).order_by(Comment.timestamp.desc()).all()
     
-    return render_template("sns/mypage.html", user=current_user, posts=user_posts, comments=user_comments)
+    return render_template("sns/mypage.html", form=form ,user=current_user, posts=user_posts, comments=user_comments)
 
 @dt.route("/user/<int:user_id>", methods=["GET"])
 @login_required
@@ -305,3 +292,41 @@ def get_cities(pref_id):
     except Exception as e:
         current_app.logger.error(f"エラーが発生しました: {e}")
         return jsonify({"error": "データの取得に失敗しました"}), 500
+
+@dt.route("/post/<int:post_id>/delete", methods=["POST"])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.user_id == current_user.id:  # 投稿者が自分であることを確認
+        # 投稿に関連する画像も削除（画像もデータベースから削除）
+        images = Image.query.filter_by(post_id=post_id).all()
+        for image in images:
+            # 画像ファイルを削除
+            image_path = Path(current_app.config["UPLOAD_FOLDER"], image.post_image_path)
+            if image_path.exists():
+                image_path.unlink()
+            db.session.delete(image)
+
+        # 投稿に関連するコメントも削除
+        comments = Comment.query.filter_by(post_id=post_id).all()
+        for comment in comments:
+            db.session.delete(comment)
+
+        db.session.delete(post)
+        db.session.commit()
+    else:
+        flash("自分の投稿だけ削除できます。", "danger")
+    
+    return redirect(url_for("sns.mypage"))
+
+@dt.route("/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if comment.user_id == current_user.id:  # コメントしたユーザーが自分であることを確認
+        db.session.delete(comment)
+        db.session.commit()
+    else:
+        flash("自分のコメントだけ削除できます。", "danger")
+    
+    return redirect(url_for("sns.post_detail", post_id=comment.post_id))
