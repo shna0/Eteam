@@ -365,7 +365,6 @@ def edit_post(post_id):
         post.prefecture_id = form.prefecture.data
         post.city_code = form.city.data
         db.session.commit()
-        flash("投稿が更新されました。", "success")
         return redirect(url_for('sns.mypage'))
 
     # フォームに現在の投稿内容をセット
