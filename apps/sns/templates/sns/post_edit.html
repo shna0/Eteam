@@ -1,0 +1,55 @@
+{% extends "sns/base.html" %}
+
+{% block content %}
+<h2>投稿の編集</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <label for="title">タイトル</label>
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <label for="content">内容</label>
+        {{ form.content(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <label for="prefecture">都道府県</label>
+        {{ form.prefecture(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <label for="city">市区町村</label>
+        {{ form.city(class="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">更新</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelector('#prefecture').addEventListener('change', function() {
+    const prefId = parseInt(this.value); // 選択された都道府県IDを整数に変換
+    const citySelect = document.querySelector('#city');
+
+    if (!prefId) {
+        citySelect.innerHTML = '<option value="">市区町村を選んでください</option>';
+        return;
+    }
+
+    fetch(`/tags/cities/${prefId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (Array.isArray(data)) {
+                citySelect.innerHTML = data.map(city => 
+                    `<option value="${city.citycode}">${city.city}</option>`
+                ).join('');
+            } else {
+                console.error("データ形式が予期しない形式です。", data);
+            }
+        })
+        .catch(error => {
+            console.error("市区町村データの取得エラー:", error);
+            alert("市区町村データの取得に失敗しました。");
+        });
+});
+</script>
+{% endblock %}

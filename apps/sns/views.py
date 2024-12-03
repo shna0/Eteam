@@ -330,3 +330,48 @@ def delete_comment(comment_id):
         flash("自分のコメントだけ削除できます。", "danger")
     
     return redirect(url_for("sns.post_detail", post_id=comment.post_id))
+
+@dt.route("/post/<int:post_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    if post.user_id != current_user.id:
+        flash("自分の投稿だけ編集できます。", "danger")
+        return redirect(url_for('sns.mypage'))
+
+    form = PostForm()
+
+    # 都道府県と市区町村の選択肢を設定
+    tags = load_tags()
+    form.prefecture.choices = [
+        (tag_data['id'], tag_data['name']) for data in tags for tag_data in data.values()
+    ]
+
+    # 市区町村の初期選択肢設定
+    if post.prefecture_id:
+        prefecture_data = next((item for item in tags if item.get(str(post.prefecture_id))), None)
+        if prefecture_data:
+            cities = prefecture_data[str(post.prefecture_id)].get('city', [])
+            form.city.choices = [(city['citycode'], city['city']) for city in cities]
+        else:
+            form.city.choices = [("", "市区町村を選んでください")]
+    else:
+        form.city.choices = [("", "市区町村を選んでください")]
+
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        post.prefecture_id = form.prefecture.data
+        post.city_code = form.city.data
+        db.session.commit()
+        flash("投稿が更新されました。", "success")
+        return redirect(url_for('sns.mypage'))
+
+    # フォームに現在の投稿内容をセット
+    form.title.data = post.title
+    form.content.data = post.content
+    form.prefecture.data = post.prefecture_id
+    form.city.data = post.city_code
+
+    return render_template("sns/post_edit.html", form=form, post=post)
