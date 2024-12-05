@@ -65,11 +65,15 @@
                                 </a>
                             {% else %}
                                 <a class="nav-link" href="{{ url_for('auth.signup') }}">
-                                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                    <div class="sb-nav-link-icon">
+                                        <img src="{{ url_for('static', filename='static_image/adduser_icon.png') }}" alt="新規登録アイコン"  style="width: 20px; height: 20px;">
+                                    </div>
                                     新規登録
                                 </a>
                                 <a class="nav-link" href="{{ url_for('auth.login') }}">
-                                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                    <div class="sb-nav-link-icon">
+                                        <img src="{{ url_for('static', filename='static_image/login_icon.png') }}" alt="ログインアイコン"  style="width: 20px; height: 20px;">
+                                    </div>
                                     ログイン
                                 </a>
                             {% endif %}
