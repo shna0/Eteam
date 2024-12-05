@@ -1,19 +1,28 @@
 {% extends "sns/base.html" %}
 {% block content %}
-<h1>{{ user.username }} のプロフィールを編集</h1>
-<form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <!-- ユーザー名の変更 -->
-    <div class="form-group">
-        {{ form.username.label }}
-        {{ form.username(class="form-control") }}
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="my-4">{{ user.username }} のプロフィールを編集</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="">
+                <div class="card shadow mb-4 card-unified">
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            {{ form.username.label }}
+                            {{ form.username(class="form-control") }}
+                        </div>
+                        <div id="drop-area" class="drop-area-custom border border-dashed rounded">
+                            <div class="form-group">
+                                {{ form.image.label }}
+                                {{ form.image(class="form-control-file") }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">{{ form.submit.label }}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-    <!-- アイコンの変更 -->
-    <div class="form-group">
-        {{ form.image.label }}
-        {{ form.image(class="form-control-file") }}
-    </div>
-
-    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
-</form>
+</div>
 {% endblock %}
