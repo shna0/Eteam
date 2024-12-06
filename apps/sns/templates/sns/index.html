@@ -2,6 +2,15 @@
 {% block content %}
 
 <div class="container-fluid">
+    <h2 class="mt-4">投稿一覧</h2>
+    <form method="GET" action="{{ url_for('sns.index') }}">
+        <select name="sort_by">
+            <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>最新の投稿</option>
+            <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>最も古い投稿</option>
+        </select>
+        <button type="submit">ソート</button>
+    </form>
+    
     <div class="row">
         {% if users %}
             <div class="col-12 mt-4">

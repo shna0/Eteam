@@ -25,12 +25,42 @@ def load_locations():
 # dtアプリケーションを使ってエンドポイントを作成する
 @dt.route("/")
 def index():
-    # 投稿一覧を取得（投稿者情報も取得）
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    sort_by = request.args.get('sort_by', 'latest')  # デフォルトは「latest」
+    
+    if sort_by == 'latest':
+        posts = Post.query.order_by(Post.timestamp.desc()).all()  # 最新の投稿順
+    elif sort_by == 'oldest':
+        posts = Post.query.order_by(Post.timestamp.asc()).all()  # 最も古い投稿順
+    else:
+        posts = Post.query.order_by(Post.timestamp.desc()).all()  # デフォルトは最新順
+
     
     # 検索フォームも渡す
     form = SearchForm()
     return render_template("sns/index.html", posts=posts, form=form)
+
+@dt.route('/following_posts', methods=['GET'])
+@login_required
+def following_posts():
+    # フォローしているユーザーを取得
+    following = Follow.query.filter_by(user_id=current_user.id).all()
+    
+    # フォローしているユーザーの投稿をすべて取得
+    posts = []
+    for follow in following:
+        user_posts = Post.query.filter_by(user_id=follow.followed.id).all()
+        posts.extend(user_posts)  # 投稿を追加
+
+    # 投稿が正しく取得されているか確認
+    print(posts)
+
+    form = SearchForm()
+    
+    # 投稿が存在するか確認
+    for user in following:
+        print(user.followed.username, user.followed.id)  # 修正部分
+
+    return render_template('sns/following_posts.html', posts=posts, form=form)
 
 
 @dt.route("/images/<path:filename>")
@@ -375,3 +405,5 @@ def edit_post(post_id):
     form.city.data = post.city_code
 
     return render_template("sns/post_edit.html", form=form, post=post)
+
+
