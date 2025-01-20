@@ -143,6 +143,7 @@ def search():
     locations_data = load_locations()  # JSONデータを読み込む
     posts = []
     users = []
+    no_results = False  # 該当なしフラグ
 
     if form.validate_on_submit():
         keyword = form.keyword.data.strip() if form.keyword.data else None
@@ -150,19 +151,16 @@ def search():
         prefecture_ids = []
         city_codes = []
 
-
         if keyword:
             # 都道府県名の一致を検索
             for location in locations_data:
-                for pref_id, pref_data in location.items():  # locationは辞書として扱う
+                for pref_id, pref_data in location.items():
                     if keyword in pref_data["name"]:
                         prefecture_ids.append(pref_id)
-
-                    # 市区町村名の一致を検索
                     for city in pref_data["city"]:
                         if keyword in city["city"]:
                             city_codes.append(city["citycode"])
-   
+
             # 投稿を検索（タイトルや内容、都道府県ID、市区町村コードで検索）
             posts = Post.query.filter(
                 (Post.title.contains(keyword)) |
@@ -176,8 +174,10 @@ def search():
                 User.username.contains(keyword)
             ).order_by(User.username.asc()).all()
 
-    
-    return render_template("sns/index.html", posts=posts, users=users, form=form)
+        if not posts and not users:
+            no_results = True  # 該当なしの場合フラグを立てる
+
+    return render_template("sns/index.html", posts=posts, users=users, form=form, no_results=no_results)
 
 @dt.route("/post/<int:post_id>", methods=["GET", "POST"])
 @login_required

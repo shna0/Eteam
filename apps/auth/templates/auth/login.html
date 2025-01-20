@@ -8,22 +8,40 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-5">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
-                            <div class="card-header"><h3 class="text-center font-weight-light my-4">ログイン</h3>
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">ログイン</h3></div>
                             <div class="card-body">
                                 <form method="POST" action="{{ url_for('auth.login') }}">
                                     {% for message in get_flashed_messages() %}
-                                    <span class="dt-auth-flash">{{ message }}</span>
+                                    <div class="alert alert-warning">{{ message }}</div>
                                     {% endfor %}
+                                    
                                     {{ form.csrf_token }}
+                                    
                                     <div class="form-floating mb-3">
                                         {{ form.email(class="form-control dt-auth-input", placeholder="メールアドレス") }}
                                         <label for="inputEmail">メールアドレス</label>
+                                        {% if form.email.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.email.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div>
+                                    
                                     <div class="form-floating mb-3">
                                         {{ form.password(class="form-control dt-auth-input", placeholder="パスワード") }}
                                         <label for="inputPassword">パスワード</label>
+                                        {% if form.password.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.password.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                    <div class="btn btn-primary">
+                                    
+                                    <div>
                                         {{ form.submit(class="btn btn-md btn-primary btn-block dt-auth-btn") }}
                                     </div>
                                 </form>
@@ -38,20 +56,4 @@
         </main>
     </div>
 </div>
-<!-- <div class="mx-auto dt-auth-main">
-    <div class="card dt-auth-login">
-        <header>ログイン</header>
-        <section>
-            <form method="POST" action="{{ url_for('auth.login') }}">
-                {% for message in get_flashed_messages() %}
-                <span class="dt-auth-flash">{{ message }}</span>
-                {% endfor %}
-                {{ form.csrf_token }}
-                {{ form.email(class="form-control dt-auth-input", placeholder="メールアドレス") }}
-                {{ form.password(class="form-control dt-auth-input", placeholder="パスワード") }}
-                {{ form.submit(class="btn btn-md btn-primary btn-block dt-auth-btn") }}
-            </form>
-        </section>
-    </div>
-</div> -->
 {% endblock %}

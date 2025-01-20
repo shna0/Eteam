@@ -17,8 +17,9 @@ class SignUpForm(FlaskForm):
             Email("メールアドレスの形式で入力してください。")
         ],
     )
-    password = PasswordField("パスワード",
-                    validators=[DataRequired("パスワードは必須です。")])
+    password = PasswordField(
+        "パスワード",
+        validators=[DataRequired("パスワードは必須です。")])
     submit = SubmitField("新規登録")
 
 class LoginForm(FlaskForm):

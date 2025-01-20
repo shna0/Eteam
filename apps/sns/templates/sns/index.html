@@ -12,59 +12,64 @@
     </form>
     
     <div class="row">
-        {% if users %}
-            <div class="col-12 mt-4">
-                <div class="d-flex flex-wrap">
-                    {% for user in users %}
-                        <a href="{{ url_for('sns.user_page', user_id=user.id) }}" 
-                           class="card shadow mx-2 mb-4" 
-                           style="color: inherit; width: 18rem;">
-                            <div class="card-body text-center">    
-                                <img 
-                                    src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" 
-                                    alt="ユーザーアイコン" 
-                                    style="width: 60px; height: 60px; border-radius: 50%;" 
-                                />
-                                <h5 class="card-title mt-2">{{ user.username }}</h5>
-                            </div>
-                        </a>
-                    {% endfor %}
-                </div>
+        {% if no_results %}
+            <div class="col-12 mt-4 text-center">
+                <p class="text-danger">該当する投稿は見つかりませんでした。</p>
             </div>
-        {% endif %}
-        <div class="posts d-flex flex-row flex-wrap">
-            {% for post in posts %}
-                <div class="col-lg-6 mb-4 pt-4" >
-                    <div class="card shadow mx-2" >
-                        <!-- Card Header -->
-                            <div class="card-header py-3" >
-                                <h6 class="m-0 font-weight-bold text-primary" >
+        {% else %}
+            {% if users %}
+                <div class="col-12 mt-4">
+                    <div class="d-flex flex-wrap">
+                        {% for user in users %}
+                            <a href="{{ url_for('sns.user_page', user_id=user.id) }}" 
+                               class="card shadow mx-2 mb-4" 
+                               style="color: inherit; width: 18rem;">
+                                <div class="card-body text-center">    
+                                    <img 
+                                        src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" 
+                                        alt="ユーザーアイコン" 
+                                        style="width: 60px; height: 60px; border-radius: 50%;" 
+                                    />
+                                    <h5 class="card-title mt-2">{{ user.username }}</h5>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="posts d-flex flex-row flex-wrap">
+                {% for post in posts %}
+                    <div class="col-lg-6 mb-4 pt-4">
+                        <div class="card shadow mx-2">
+                            <!-- Card Header -->
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
                                     <div class="post">
                                         <a href="{{ url_for('sns.user_page', user_id=post.user_id) if post.user_id != current_user.id else url_for('sns.mypage') }}">
-                                            <img  src="{{ url_for('sns.image_file', filename=post.user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
+                                            <img src="{{ url_for('sns.image_file', filename=post.user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 30px; height: 30px; border-radius: 50%;" />
                                         </a>
-                                        <a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}" >
+                                        <a href="{{ url_for('sns.post_detail', post_id=post.post_id) }}">
                                             {{ post.title }}
                                         </a>
                                     </div>
                                 </h6>
                             </div>
-                        <!-- Card Body -->
-                        <div class="card-body">
-                            <div class="text-center">
-                                {% for image in post.images %}
-                                <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="width: 100%; height: 300px; object-fit: cover;" />
-                                {% endfor %}
-                            </div>
-                            <div class="mt-4 text-center small">
-                                投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="text-center">
+                                    {% for image in post.images %}
+                                    <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" src="{{ url_for('sns.image_file', filename=image.post_image_path) }}" alt="投稿画像" style="width: 100%; height: 300px; object-fit: cover;" />
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-4 text-center small">
+                                    投稿者: {{ post.user.username }} | 投稿日時: {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 </div>
 <!-- 投稿一覧 -->
