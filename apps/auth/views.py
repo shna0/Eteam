@@ -19,7 +19,7 @@ auth = Blueprint(
 def index():
     return render_template("auth/index.html")
 
-@auth.route("/signup", methods=["GET","POST"])
+@auth.route("/signup", methods=["GET", "POST"])
 def signup():
     # SignUpFormをインスタンス化する
     form = SignUpForm()
@@ -38,27 +38,46 @@ def signup():
         # ユーザー情報を登録する
         db.session.add(user)
         db.session.commit()
+
         # ユーザー情報をセッションに格納する
         login_user(user)
+
         # GETパラメータにnextキーが存在し、値がない場合はユーザーの一覧ページへリダイレクトする
         next_ = request.args.get("next")
         if next_ is None or not next_.startswith("/"):
             next_ = url_for("sns.index")
         return redirect(next_)
+    else:
+        # フォームのバリデーションエラーをflashで表示
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error)
 
     return render_template("auth/signup.html", form=form)
 
-@auth.route("/login", methods=["GET","POST"])
+
+@auth.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
+        # ユーザーが存在し、パスワードが正しい場合
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
             return redirect(url_for("sns.index"))
 
+        # ユーザーが存在しない、またはパスワードが間違っている場合
+        flash("メールアドレスまたはパスワードが間違っています。")
+    else:
+        # フォームのバリデーションエラーをflashで表示
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error)
+
     return render_template("auth/login.html", form=form)
+
+
 
 @auth.route("/logout")
 def logout():
