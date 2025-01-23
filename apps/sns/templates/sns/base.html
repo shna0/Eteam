@@ -23,7 +23,7 @@
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
             <a class="navbar-brand ps-3" href="{{ url_for('sns.index') }}">VOYAGER</a>
-
+        
             {% if request.endpoint == 'sns.index' or (request.endpoint == 'sns.post_detail' and post_id is defined) %}
                 <form method="POST" action="{{ url_for('sns.search') }}" class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
                     {{ form.hidden_tag() }}
@@ -33,10 +33,10 @@
                             <button class="btn btn-primary" id="btnNavbarSearch" type="submit"><i class="fas fa-search"></i></button>
                         </div>
                     </div>
-                    
                 </form>
             {% endif %}
         </nav>
+        
         <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
                 <!-- bg-color #212529 -->
@@ -50,18 +50,20 @@
                                     </div>
                                     フォロー中の投稿
                                 </a>
-
-                                <a class="nav-link" href="{{ url_for('sns.mypage') }}">
-                                    <div class="sb-nav-link-icon">
-                                        <img src="{{ url_for('static', filename='static_image/mypage_icon.png') }}" alt="マイページアイコン"  style="width: 20px; height: 20px;">
-                                    </div>
-                                    マイページ
-                                </a>
                                 <a class="nav-link" href="{{ url_for('sns.post') }}">
                                     <div class="sb-nav-link-icon">
                                         <img src="{{ url_for('static', filename='static_image/post_icon.png') }}" alt="ポストアイコン"  style="width: 20px; height: 20px;">
                                     </div>
                                     新規投稿
+                                </a>
+                                
+                                <a class="nav-link" href="{{ url_for('sns.mypage') }}">
+                                    <div class="sb-nav-link-icon">
+                                        <img src="{{ url_for('static', filename='static_image/mypage_icon.png') }}" alt="マイページアイコン"  style="width: 20px; height: 20px;">
+                                    </div>
+                                    {% if current_user.is_authenticated %}
+                                    {{ current_user.username }}
+                                    {% endif %}
                                 </a>
 
                                 <a class="nav-link" href="{{ url_for('auth.logout') }}">

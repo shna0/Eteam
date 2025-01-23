@@ -68,7 +68,7 @@ def login():
             return redirect(url_for("sns.index"))
 
         # ユーザーが存在しない、またはパスワードが間違っている場合
-        flash("メールアドレスまたはパスワードが間違っています。")
+        flash("メールアドレス、パスワードを確認してください。")
     else:
         # フォームのバリデーションエラーをflashで表示
         for field, errors in form.errors.items():
