@@ -60,7 +60,7 @@ def following_posts():
     for user in following:
         print(user.followed.username, user.followed.id)  # 修正部分
 
-    return render_template('sns/following_posts.html', posts=posts, form=form)
+    return render_template('sns/following_posts.html', posts=posts, form=form, user=current_user)
 
 
 @dt.route("/images/<path:filename>")
@@ -131,7 +131,7 @@ def post():
         print("フォームのバリデーションに失敗しました")
         print(form.errors)  # エラー内容を確認
     
-    return render_template("sns/post.html", form=form)
+    return render_template("sns/post.html", form=form, user=current_user)
 
 
 
@@ -177,7 +177,7 @@ def search():
         if not posts and not users:
             no_results = True  # 該当なしの場合フラグを立てる
 
-    return render_template("sns/index.html", posts=posts, users=users, form=form, no_results=no_results)
+    return render_template("sns/index.html", posts=posts, users=users, form=form, no_results=no_results, user=current_user)
 
 @dt.route("/post/<int:post_id>", methods=["GET", "POST"])
 @login_required
@@ -193,7 +193,7 @@ def post_detail(post_id):
         db.session.commit()
         return redirect(url_for('sns.post_detail', post_id=post_id))
 
-    return render_template("sns/post_detail.html", post=post, comments=comments, form=form)
+    return render_template("sns/post_detail.html", post=post, comments=comments, form=form, user=current_user)
 
 @dt.route("/mypage", methods=["GET"])
 @login_required
@@ -213,7 +213,7 @@ def user_page(user_id):
     user_posts = Post.query.filter_by(user_id=user_id).order_by(Post.timestamp.desc()).all()
     user_comments = Comment.query.filter_by(user_id=user_id).order_by(Comment.timestamp.desc()).all()
     form = FollowForm()
-    return render_template("sns/user_page.html", user=user, posts=user_posts, comments=user_comments, form=form)
+    return render_template("sns/user_page.html", otheruser=user, posts=user_posts, comments=user_comments, form=form, user=current_user)
 
 @dt.route("/user/<int:user_id>/edit_icon", methods=["GET", "POST"])
 @login_required
@@ -277,7 +277,7 @@ def toggle_follow(user_id):
 @login_required
 def following_list():
     followings = Follow.query.filter_by(user_id=current_user.id).all()
-    return render_template("sns/following_list.html", followings=followings)
+    return render_template("sns/following_list.html", followings=followings, user=current_user)
 
 @dt.route("/mypage/followers", methods=["GET"])
 @login_required
@@ -286,7 +286,7 @@ def followers_list():
     followers = Follow.query.filter_by(follow_user_id=current_user.id).all()
     followers_users = [User.query.get(follow.user_id) for follow in followers]
     
-    return render_template("sns/followers_list.html", followers=followers_users)
+    return render_template("sns/followers_list.html", followers=followers_users, user=current_user)
 
 @dt.route("/tags/prefectures", methods=["GET"])
 def get_prefectures():

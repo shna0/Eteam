@@ -2,8 +2,8 @@
 {% block content %}
 <nav class="navbar navbar-expand navbar-dark bg-light topbar mb-4 static-top shadow p-4">
     <h2>
-        <img src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
-        {{ user.username }}
+        <img src="{{ url_for('sns.image_file', filename=otheruser.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
+        {{ otheruser.username }}
     </h2>
 
     <div class="navbar navbar-expand-lg navbar-light bg-light">
@@ -11,7 +11,7 @@
             <dev class="nav-item active">
                 <form method="POST" action="{{ url_for('sns.toggle_follow', user_id=user.id) }}">
                     {{ form.hidden_tag() }}
-                    {% if user.is_followed_by_current_user %}
+                    {% if otheruser.is_followed_by_current_user %}
                         <button type="submit" class="btn btn-secondary">フォロー中</button>
                     {% else %}
                         <button type="submit" class="btn btn-primary">フォローする</button>
