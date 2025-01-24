@@ -37,7 +37,7 @@ def index():
     
     # 検索フォームも渡す
     form = SearchForm()
-    return render_template("sns/index.html", posts=posts, form=form)
+    return render_template("sns/index.html", posts=posts, form=form, user=current_user)
 
 @dt.route('/following_posts', methods=['GET'])
 @login_required
