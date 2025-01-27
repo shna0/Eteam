@@ -65,39 +65,42 @@
 
 {% block scripts %}
 <script>
-document.querySelector('#prefecture').addEventListener('change', function() {
-    const prefId = parseInt(this.value);  // 選択された都道府県IDを整数に変換
-    console.log('選択された都道府県ID:', prefId);  // ここで選択されたIDを確認
-
-    // 都道府県が選択されていない場合は、選択肢をリセット
-    if (!prefId) {
-        document.querySelector('#city').innerHTML = '<option value="">市区町村を選んでください</option>';
-        return;
-    }
-
-    fetch(`/tags/cities/${prefId}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("エラーが発生しました");
+    document.querySelector('#prefecture').addEventListener('change', function() {
+        const prefId = parseInt(this.value);  // 選択された都道府県IDを整数に変換
+        console.log('選択された都道府県ID:', prefId);  // ここで選択されたIDを確認
+    
+        // 都道府県が選択されていない場合は、選択肢をリセット
+        if (!prefId) {
+            document.querySelector('#city').innerHTML = '<option value="">市区町村を選んでください</option>';
+            return;
         }
-        return response.json();
-    })
-    .then(data => {
-        const citySelect = document.querySelector('#city');
-        
-        if (Array.isArray(data)) {
-            citySelect.innerHTML = data.map(city => 
-                `<option value="${city.citycode}">${city.city}</option>`
-            ).join('');
-        } else {
-            console.error("データ形式が予期しない形式です。", data);
-        }
-    })
-    .catch(error => {
-        console.error("市区町村データの取得エラー:", error);
-        alert("市区町村データの取得に失敗しました。");
+    
+        // 都道府県に関連する市区町村を取得するためにAPIにリクエスト
+        fetch(`/tags/cities/${prefId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("エラーが発生しました");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const citySelect = document.querySelector('#city');
+            
+            if (Array.isArray(data)) {
+                // 市区町村の選択肢を動的に生成
+                citySelect.innerHTML = data.map(city => 
+                    `<option value="${city.citycode}">${city.city}</option>`
+                ).join('');
+            } else {
+                console.error("データ形式が予期しない形式です。", data);
+            }
+        })
+        .catch(error => {
+            console.error("市区町村データの取得エラー:", error);
+            alert("市区町村データの取得に失敗しました。");
+        });
     });
-});
-</script>
+    </script>
+    
 {% endblock %}
 
