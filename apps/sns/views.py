@@ -404,6 +404,6 @@ def edit_post(post_id):
     form.prefecture.data = post.prefecture_id
     form.city.data = post.city_code
 
-    return render_template("sns/post_edit.html", form=form, post=post)
+    return render_template("sns/post_edit.html", form=form, post=post, user=current_user)
 
 
