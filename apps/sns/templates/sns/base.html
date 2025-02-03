@@ -23,7 +23,7 @@
             <a class="navbar-brand ps-3" href="{{ url_for('sns.index') }}">VOYAGER</a>
 
             {% if request.endpoint == 'sns.index' or (request.endpoint == 'sns.post_detail' and post_id is defined) %}
-            <form method="POST" action="{{ url_for('sns.search') }}" class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <form method="POST" action="{{ url_for('sns.search') }}" class="form-inline ms-auto me-0 me-md-3 my-2 my-md-0 w-100">
                 {{ form.hidden_tag() }}
                 <div class="input-group">
                     <input class="form-control" type="text" name="keyword" placeholder="検索" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
@@ -34,6 +34,7 @@
                     </div>
                 </div>
             </form>
+            
             {% endif %}
         </nav>
 
