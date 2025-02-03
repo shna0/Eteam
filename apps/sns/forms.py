@@ -9,7 +9,7 @@ from wtforms.validators import DataRequired, Length
 class PostForm(FlaskForm):
     title = StringField("タイトル", validators=[DataRequired(),Length(max=30, message="30文字以内で入力してください。"),])
     content = TextAreaField("内容", validators=[DataRequired()])
-    images = MultipleFileField("画像", validators=[FileAllowed(['jpg', 'png', 'gif'], "画像ファイルのみアップロード可能です")])
+    images = MultipleFileField("画像", validators=[DataRequired(), FileAllowed(['jpg', 'png', 'gif'], "画像ファイルのみアップロード可能です"),])
     prefecture = SelectField("都道府県", choices=[], validators=[DataRequired()])
     city = SelectField("市区町村", choices=[], validators=[DataRequired()])
     submit = SubmitField("投稿")
@@ -24,11 +24,11 @@ class UploadImageForm(FlaskForm):
     image = FileField(
         "画像ファイル",
         validators=[
-            FileRequired("画像ファイルを指定してください。"),
             FileAllowed(["png", "jpg", "jpeg"], "サポートされていない画像形式です。"),
         ],
     )
     submit = SubmitField("更新")
+
 
 
 class SearchForm(FlaskForm):

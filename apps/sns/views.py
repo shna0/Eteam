@@ -220,9 +220,7 @@ def user_page(user_id):
 def edit_icon(user_id):
     user = User.query.get_or_404(user_id)
 
-    # ユーザーがログイン中であり、自身の情報のみ編集可能とする
     if user != current_user:
-        # flash("他のユーザーの情報を編集することはできません。")
         return redirect(url_for("sns.user_page", user_id=user_id))
 
     form = UploadImageForm()
@@ -233,10 +231,9 @@ def edit_icon(user_id):
         if new_username and len(new_username) <= 50:
             user.username = new_username
         else:
-            # flash("ユーザー名が無効です。")
             return redirect(url_for("sns.edit_icon", user_id=user_id))
 
-        # 画像ファイルの処理
+        # 画像ファイルの処理（選択されている場合のみ）
         if form.image.data:
             file = form.image.data
             ext = Path(file.filename).suffix
@@ -248,7 +245,6 @@ def edit_icon(user_id):
             user.icon_path = unique_filename
 
         db.session.commit()
-        # flash("アイコンとユーザー名を更新しました")
         return redirect(url_for("sns.mypage", user_id=user_id))
 
     # 初期データとして現在のユーザー名をフォームにセット
