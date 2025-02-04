@@ -1,8 +1,9 @@
 {% extends "sns/base.html" %}
 {% block content %}
 <nav class="navbar navbar-expand navbar-dark bg-light topbar mb-4 static-top shadow p-4">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
     <h2>
-        <img src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
+        <img src="{{ url_for('sns.image_file', filename=user.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" class="mt-0"/>
         {{ user.username }}
     </h2>
 
@@ -19,6 +20,7 @@
                     <a class="nav-link" href="{{ url_for('sns.edit_icon', user_id=user.id) }}">プロフィールを編集</a>
                 {% endif %}
             </dev>
+            <a class="nav-link" href="{{ url_for('sns.index') }}">TOPへ戻る</a>
         </ul>
     </div>
 </nav>

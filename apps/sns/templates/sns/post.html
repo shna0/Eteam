@@ -1,8 +1,14 @@
 {% extends "sns/base.html" %}
 {% block content %}
+<nav class="navbar navbar-expand navbar-dark bg-light topbar mb-4 static-top shadow p-4">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <h2 class="mt-0">新規投稿</h2>
+        <a class="nav-link" href="{{ url_for('sns.index') }}">TOPへ戻る</a>
+    </div>
+</nav>
+
 <div class="container-fluid">
     <div class="row">
-        <h2 class="my-4">新規投稿</h2>
 
         <form method="POST" enctype="multipart/form-data" class="w-100">
             {{ form.hidden_tag() }}

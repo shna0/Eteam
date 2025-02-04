@@ -11,7 +11,7 @@ class PostForm(FlaskForm):
     content = TextAreaField("内容", validators=[DataRequired()])
     images = MultipleFileField("画像", validators=[DataRequired(), FileAllowed(['jpg', 'png', 'gif'], "画像ファイルのみアップロード可能です"),])
     prefecture = SelectField("都道府県", choices=[], validators=[DataRequired()])
-    city = SelectField("市区町村", choices=[], validators=[DataRequired()])
+    city = SelectField("市区郡", choices=[], validators=[DataRequired()])
     submit = SubmitField("投稿")
 
 
@@ -22,7 +22,7 @@ class UploadImageForm(FlaskForm):
     )
 
     image = FileField(
-        "画像ファイル",
+        "アイコン画像",
         validators=[
             FileAllowed(["png", "jpg", "jpeg"], "サポートされていない画像形式です。"),
         ],

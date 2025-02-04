@@ -1,26 +1,25 @@
 {% extends "sns/base.html" %}
 {% block content %}
 <nav class="navbar navbar-expand navbar-dark bg-light topbar mb-4 static-top shadow p-4">
-    <h2>
-        <img src="{{ url_for('sns.image_file', filename=otheruser.icon_path or 'default_icon.png') }}" alt="アイコン" style="width: 50px; height: 50px; border-radius: 50%;" />
-        {{ otheruser.username }}
-    </h2>
-
-    <div class="navbar navbar-expand-lg navbar-light bg-light">
-        <ul class="collapse navbar-collapse mx-3">
-            <dev class="nav-item active">
-                <form method="POST" action="{{ url_for('sns.toggle_follow', user_id=otheruser.id) }}">
-                    {{ form.hidden_tag() }}
-                    {% if otheruser.is_followed_by_current_user %}
-                        <button type="submit" class="btn btn-secondary">フォロー中</button>
-                    {% else %}
-                        <button type="submit" class="btn btn-primary">フォローする</button>
-                    {% endif %}
-                </form>
-            </dev>
-        </ul>
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <img src="{{ url_for('sns.image_file', filename=otheruser.icon_path or 'default_icon.png') }}" 
+             alt="アイコン" 
+             style="width: 50px; height: 50px; border-radius: 50%;" />
+        <h2 class="mb-0 ml-2">{{ otheruser.username }}</h2>
+        <form method="POST" action="{{ url_for('sns.toggle_follow', user_id=otheruser.id) }}" class="ml-3">
+          {{ form.hidden_tag() }}
+          {% if otheruser.is_followed_by_current_user %}
+            <button type="submit" class="btn btn-secondary">フォロー中</button>
+          {% else %}
+            <button type="submit" class="btn btn-primary">フォローする</button>
+          {% endif %}
+        </form>
+      </div>
+      <a class="nav-link" href="{{ url_for('sns.index') }}">TOPへ戻る</a>
     </div>
-</nav>
+  </nav>
+  
 
 <h2>投稿履歴</h2>
 <div class="posts d-flex flex-row flex-wrap">

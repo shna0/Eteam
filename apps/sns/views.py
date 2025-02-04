@@ -22,22 +22,21 @@ def load_locations():
         locations_data = json.load(f)
     return locations_data
 
-# dtアプリケーションを使ってエンドポイントを作成する
 @dt.route("/")
 def index():
     sort_by = request.args.get('sort_by', 'latest')  # デフォルトは「latest」
-    
-    if sort_by == 'latest':
-        posts = Post.query.order_by(Post.timestamp.desc()).all()  # 最新の投稿順
-    elif sort_by == 'oldest':
-        posts = Post.query.order_by(Post.timestamp.asc()).all()  # 最も古い投稿順
-    else:
-        posts = Post.query.order_by(Post.timestamp.desc()).all()  # デフォルトは最新順
+    keyword = request.args.get('keyword', 'なし')  # 検索ワード
 
-    
+    if sort_by == 'latest':
+        posts = Post.query.order_by(Post.timestamp.desc()).all()
+    elif sort_by == 'oldest':
+        posts = Post.query.order_by(Post.timestamp.asc()).all()
+    else:
+        posts = Post.query.order_by(Post.timestamp.desc()).all()
+
     # 検索フォームも渡す
     form = SearchForm()
-    return render_template("sns/index.html", posts=posts, form=form, user=current_user)
+    return render_template("sns/index.html", posts=posts, form=form, sort_by=sort_by, keyword=keyword, user=current_user)
 
 @dt.route('/following_posts', methods=['GET'])
 @login_required
@@ -144,6 +143,7 @@ def search():
     posts = []
     users = []
     no_results = False  # 該当なしフラグ
+    sort_by = request.args.get('sort_by', 'latest')  # デフォルトは「latest」
 
     if form.validate_on_submit():
         keyword = form.keyword.data.strip() if form.keyword.data else None
@@ -177,7 +177,7 @@ def search():
         if not posts and not users:
             no_results = True  # 該当なしの場合フラグを立てる
 
-    return render_template("sns/index.html", posts=posts, users=users, form=form, no_results=no_results, user=current_user)
+    return render_template("sns/index.html", posts=posts, users=users, form=form, sort_by=sort_by, no_results=no_results, user=current_user, keyword=keyword)
 
 @dt.route("/post/<int:post_id>", methods=["GET", "POST"])
 @login_required
